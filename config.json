@@ -1,0 +1,39 @@
+{
+  "events": {
+    "Update": {
+      "name": "Access Email",
+      "description": "The threat actor accessed an email from IP Address {IP}.",
+      "source": "O365"
+    },
+    "SoftDelete": {
+      "name": "Delete Email",
+      "description": "The threat actor deleted an email from IP Address {IP}.",
+      "source": "O365"
+    },
+    "HardDelete": {
+      "name": "Delete Email",
+      "description": "The threat actor deleted an email from IP Address {IP}.",
+      "source": "O365"
+    },
+    "MoveToDeletedItems": {
+      "name": "Delete Email",
+      "description": "The threat actor deleted an email from IP Address {IP}.",
+      "source": "O365"
+    },
+    "Create": {
+      "name": "Create Email",
+      "description": "The threat actor created an email from IP Address {IP}.",
+      "source": "O365"
+    },
+    "New-InboxRule": {
+      "name": "Create Inbox Rule",
+      "description": "The threat actor created an inbox rule from IP Address {IP}.",
+      "source": "O365"
+    },
+    "Send": {
+      "name": "Send Email",
+      "description": "The threat actor sent an email from IP Address {IP}.",
+      "source": "O365"
+    }
+  }
+}
