@@ -58,41 +58,49 @@ def generate_timeline(events):
     consecutive_operation_count = 1
     last_operation = ""
     start_time_of_consecutive_operations = None
+    end_time_of_last_event = None
 
     for event in events:
         date, operation, ip_address, extended_details = event
 
-        if last_operation == "builtin\\date change":
-            last_operation = operation
+        # Before calling format_operation:
+        if end_time_of_last_event is None:
+            end_time_of_last_event = date
 
-        # If we're on a new day, add the date header.
+        # If we're on a new day, add the date header and reset counters and start time.
         if current_date != date.date():
+            if current_date is not None:  # Add the last operation of the previous date.
+                timeline += format_operation(end_time_of_last_event, last_operation, ip_address, extended_details,
+                                             config["events"],
+                                             consecutive_operation_count, start_time_of_consecutive_operations)
+
             timeline += "{}\n".format(date.strftime('%B %d, %Y'))
             current_date = date.date()
-
-            timeline += format_operation(date, operation, ip_address, extended_details, config["events"],
-                                         consecutive_operation_count, start_time_of_consecutive_operations)
             consecutive_operation_count = 1
             start_time_of_consecutive_operations = date
-            last_operation = "builtin\\date change"
+            last_operation = operation
 
-        # If we are on the same day/same kind of event as last, don't add, just count
+        # If we are on the same day/same kind of event as last, don't add, just count.
         elif current_date == date.date() and last_operation == operation and not extended_details:
             consecutive_operation_count += 1
+            end_time_of_last_event = date
 
-        # If we are on same day but different op, stop count and add op to timeline
-        elif current_date == date.date() and (last_operation != operation or extended_details):
-            timeline += format_operation(date, operation, ip_address, extended_details, config["events"],
+        # If we are on the same day but a different op, stop count and add op to timeline.
+        else:
+            timeline += format_operation(end_time_of_last_event, last_operation, ip_address, extended_details,
+                                         config["events"],
                                          consecutive_operation_count, start_time_of_consecutive_operations)
 
             consecutive_operation_count = 1
             start_time_of_consecutive_operations = date
             last_operation = operation
+            end_time_of_last_event = date
 
-    # Ensure to add the last entry if needed
+    # Ensure to add the last entry if needed.
     if consecutive_operation_count > 1 or (
             consecutive_operation_count == 1 and last_operation != "builtin\\date change"):
-        timeline += format_operation(date, last_operation, ip_address, extended_details, config["events"],
+        timeline += format_operation(end_time_of_last_event, last_operation, ip_address, extended_details,
+                                     config["events"],
                                      consecutive_operation_count, start_time_of_consecutive_operations)
 
     return timeline
