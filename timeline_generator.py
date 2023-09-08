@@ -17,9 +17,16 @@ def load_config(filename="config.json"):
         exit(1)
 
 
-def get_event_info(operation, config):
-    return config.get(operation, {"name": "Unknown Event", "description": "No description for this event.",
-                                  "source": "Unknown Source"})
+def get_event_info(event_name, config):
+    for operation, details in config.items():
+        if details["name"] == event_name:
+            return details
+    # If no matching event details found, return a default.
+    return {
+        "name": "Unknown Event",
+        "description": "No description for this event.",
+        "source": "Unknown Source"
+    }
 
 
 def process_csv_file(filename):
@@ -49,14 +56,14 @@ def process_csv_file(filename):
 
 
 def get_event_name(operation, event_config):
-    return event_config.get(operation, {"name": "Unknown Event"})["name"]
+    return event_config.get(operation, {}).get("name", "Unknown Event")
 
 
 def generate_timeline(events):
     timeline = ""
     current_date = None
     consecutive_operation_count = 1
-    last_operation = ""
+    last_event_name = ""
     start_time_of_consecutive_operations = None
     end_time_of_last_event = None
     ip_address_at_start = None
@@ -64,14 +71,15 @@ def generate_timeline(events):
 
     for event in events:
         date, operation, ip_address, extended_details = event
+        event_name = get_event_name(operation, config["events"])
 
         if end_time_of_last_event is None:
             end_time_of_last_event = date
 
         # If we're on a new day, add the date header and reset counters and start time.
         if current_date != date.date():
-            if current_date is not None:  # Add the last operation of the previous date.
-                timeline += format_operation(end_time_of_last_event, last_operation, ip_address_at_start,
+            if current_date is not None:  # Add the last event of the previous date.
+                timeline += format_operation(end_time_of_last_event, last_event_name, ip_address_at_start,
                                              extended_details_at_start, config["events"],
                                              consecutive_operation_count, start_time_of_consecutive_operations)
 
@@ -81,16 +89,16 @@ def generate_timeline(events):
             start_time_of_consecutive_operations = date
             ip_address_at_start = ip_address
             extended_details_at_start = extended_details
-            last_operation = operation
+            last_event_name = event_name
 
-        # If we are on the same day/same kind of event as last, don't add, just count.
-        elif current_date == date.date() and last_operation == operation and not extended_details:
+        # If we are on the same day/same event name as last, and no extended details, don't add, just count.
+        elif current_date == date.date() and last_event_name == event_name and not extended_details:
             consecutive_operation_count += 1
             end_time_of_last_event = date
 
-        # If we are on the same day but a different op, stop count and add op to timeline.
+        # If we are on the same day but a different event name, stop count and add event to timeline.
         else:
-            timeline += format_operation(end_time_of_last_event, last_operation, ip_address_at_start,
+            timeline += format_operation(end_time_of_last_event, last_event_name, ip_address_at_start,
                                          extended_details_at_start, config["events"],
                                          consecutive_operation_count, start_time_of_consecutive_operations)
 
@@ -98,13 +106,13 @@ def generate_timeline(events):
             start_time_of_consecutive_operations = date
             ip_address_at_start = ip_address
             extended_details_at_start = extended_details
-            last_operation = operation
+            last_event_name = event_name
             end_time_of_last_event = date
 
     # Ensure to add the last entry if needed.
     if consecutive_operation_count > 1 or (
-            consecutive_operation_count == 1 and last_operation != "builtin\\date change"):
-        timeline += format_operation(end_time_of_last_event, last_operation, ip_address_at_start,
+            consecutive_operation_count == 1 and last_event_name != "builtin\\date change"):
+        timeline += format_operation(end_time_of_last_event, last_event_name, ip_address_at_start,
                                      extended_details_at_start, config["events"],
                                      consecutive_operation_count, start_time_of_consecutive_operations)
 
