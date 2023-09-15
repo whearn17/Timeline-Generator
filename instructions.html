@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Using the Timeline Generator</title>
+    <style>
+      /* Global Styles */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        line-height: 1.6;
+        background-color: #1a1a1a; /* Deep Black Background */
+        color: #e6e6e6; /* Light Gray Foreground */
+      }
+
+      h1,
+      h2 {
+        color: #3498db; /* Blue for Headers */
+        border-bottom: 2px solid #2a2a2a; /* Slightly Lighter Black for Border */
+        padding-bottom: 10px;
+      }
+
+      a {
+        color: #3498db; /* Blue for Links */
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      /* Code Styling */
+      code {
+        background-color: #2a2a2a; /* Slightly Lighter Black for Code Background */
+        color: #7ed6df; /* Contrasting Blue for Code */
+        padding: 10px;
+        border-radius: 5px;
+        display: block;
+        margin: 10px 0;
+      }
+
+      /* Section and Paragraph Styling */
+      section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #333; /* Border for sections */
+        border-radius: 10px;
+        background: rgba(
+          42,
+          42,
+          42,
+          0.5
+        ); /* Semi-transparent gray background for section */
+        box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5); /* Box shadow to make the section pop */
+      }
+
+      p {
+        margin-bottom: 15px;
+      }
+
+      ul {
+        padding-left: 20px;
+      }
+
+      /* Button Styles (if any are added in future) */
+      button {
+        background-color: #3498db; /* Blue for Buttons */
+        color: #e6e6e6; /* Light Gray Text for Buttons */
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.5); /* Shadow for buttons to pop */
+      }
+
+      button:hover {
+        background-color: #2980b9; /* Darker Blue on Hover */
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Timeline Generator Guide</h1>
+
+    <section>
+      <h2>1. Running the Program</h2>
+      <p>
+        To run the program, navigate to the directory containing the
+        <code>timeline_generator.py</code> script. Then execute the following
+        command:
+      </p>
+      <code>python timeline_generator.py filename.csv</code>
+      <p>
+        Replace <code>filename.csv</code> with the name of your input CSV file.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Building Your Configuration File</h2>
+      <p>
+        The configuration file allows you to define and customize events based
+        on the operations found in your CSV.
+      </p>
+      <p>An example of a configuration snippet:</p>
+      <pre><code>
+        {
+          "events": {
+            "OPERATION_CODE": {
+              "name": "Event Name",
+              "description": "This event occurred due to {reason} at location {location}.",
+              "source": "Event Source"
+            }
+          }
+        }
+        </code></pre>
+      <p>
+        In the above example, <code>OPERATION_CODE</code> corresponds to an
+        operation value from your CSV. The placeholders
+        <code>{reason}</code> and <code>{location}</code> are dynamic and will
+        be replaced by the corresponding columns from the CSV.
+      </p>
+      <p>When creating your own configuration, ensure you:</p>
+      <ul>
+        <li>
+          Match the operation codes from your CSV to those in the configuration.
+        </li>
+        <li>
+          Use placeholders (in curly braces) to match CSV column names for
+          dynamic insertion.
+        </li>
+      </ul>
+      <p>
+        Any unmatched operation codes or placeholders will result in default
+        "Unknown" values in the generated timeline.
+      </p>
+    </section>
+  </body>
+</html>
