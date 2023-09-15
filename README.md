@@ -1,6 +1,6 @@
 ﻿# Timeline-Generator
 
-Generate detailed event timelines from CSV files using configurable event descriptions.
+Generate detailed event timelines from CSV files using dynamic configurable event descriptions.
 
 ## Table of Contents
 * <ins>Running the Program</ins>
