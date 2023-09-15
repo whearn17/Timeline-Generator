@@ -44,7 +44,7 @@ def process_csv_file(filename):
                     date = datetime.strptime(date_str, DATE_FORMAT_12HR)
 
                 operation = row["Event"]
-                args = {k: v for k, v in row.items() if k.startswith('arg')}
+                args = {k.casefold(): v for k, v in row.items() if k not in ["Time", "Event"]}
                 events.append((date, operation, args))
     except FileNotFoundError:
         print(f"CSV file {filename} not found!")
@@ -79,7 +79,10 @@ def format_operation(date, operation, args, config):
     time_str = date.strftime('%H:%M')
     event_info = get_event_info(operation, config)
     combined_name = "[{}] {}".format(event_info["source"], event_info["name"])
-    description = event_info["description"].format(**args)  # This line dynamically inserts args.
+
+    # This line dynamically inserts args.
+    formatted_args = {k.casefold(): v for k, v in args.items()}
+    description = event_info["description"].format(**formatted_args)
 
     return "{}\t{}\t{}\n".format(time_str, combined_name, description)
 
