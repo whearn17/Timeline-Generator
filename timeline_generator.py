@@ -12,6 +12,11 @@ DATE_FORMAT_24HR = '%m/%d/%y %H:%M'
 DATE_FORMAT_12HR = '%m/%d/%y %I:%M'
 
 
+class SafeDict(dict):
+    def __missing__(self, key):
+        return "[Not Provided]"
+
+
 def load_config(filename="config.json"):
     """Load and return events from the config file."""
     try:
@@ -25,11 +30,20 @@ def load_config(filename="config.json"):
 
 def get_event_info(event_name, config):
     """Retrieve event details from config."""
-    return config.get(event_name, {
+    default_info = {
         "name": "Unknown Event",
         "description": "No description for this event.",
         "source": "Unknown Source"
-    })
+    }
+    event_info = config.get(event_name, default_info)
+
+    # Ensure the retrieved or default event_info has the required keys
+    for key in default_info.keys():
+        if key not in event_info:
+            logger.warning(f"Missing {key} for event {event_name}, using default value.")
+            event_info[key] = default_info[key]
+
+    return event_info
 
 
 def process_csv_file(filename):
@@ -60,11 +74,18 @@ def format_operation(date, operation, args, config):
     """Return a formatted operation string."""
     time_str = date.strftime('%H:%M')
     event_info = get_event_info(operation, config)
-    combined_name = f"[{event_info['source']}] {event_info['name']}"
+
+    # Check if a source is available, if not don't include brackets in combined_name
+    source_str = event_info.get('source', '')
+    if source_str:  # If source_str is not empty
+        combined_name = f"[{source_str}] {event_info['name']}"
+    else:
+        combined_name = event_info['name']
 
     # This line dynamically inserts args.
     formatted_args = {k.casefold(): v for k, v in args.items()}
-    description = event_info["description"].format(**formatted_args)
+    safe_args = SafeDict(formatted_args)
+    description = event_info["description"].format_map(safe_args)
 
     return f"{time_str}\t{combined_name}\t{description}\n"
 
